@@ -1,7 +1,20 @@
+import argparse
 import glob
 import os
 import os.path
 from datetime import datetime
+
+parser = argparse.ArgumentParser(description="Process some integers.")
+parser.add_argument(
+    "--force",
+    dest="force",
+    required=False,
+    action="store_true",
+    help="Always regenerate images regardless whether we have new updates or not. This is particularly useful when you have updated your Draw.io Application, for example",
+)
+parser.set_defaults(force=False)
+args = parser.parse_args()
+print(args)
 
 
 def _format_ts(ts: float) -> str:
@@ -16,7 +29,7 @@ def convert_file(file: str, format: str) -> int:
 
     # Ensure that we don't re-convert the file if it is not edited
     target_ts = os.path.getmtime(target_file) if os.path.isfile(target_file) else 0
-    if source_ts > target_ts:
+    if source_ts > target_ts or args.force:
         print("Converting file ...")
         print(f"Source file: [{_format_ts(source_ts)}] {file} ")
         if target_ts:
