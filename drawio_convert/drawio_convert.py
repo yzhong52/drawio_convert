@@ -3,6 +3,8 @@ import glob
 import os
 import os.path
 from datetime import datetime
+from shutil import copyfile
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Process some integers.")
 parser.add_argument(
@@ -22,9 +24,14 @@ def _format_ts(ts: float) -> str:
 
 
 def convert_file(file: str, format: str) -> int:
-    filename, _ = os.path.splitext(file)
+    # Filename here is the output path without extension
+    full_filename, extension = os.path.splitext(file)
 
-    target_file = f"{filename}.generated.{format}"
+    # Split the pathname path into a pair, (head, tail) where tail is the last
+    # pathname component and head is everything leading up to that.
+    _, target_filename = os.path.split(file)
+
+    target_file = f"{full_filename}.generated.{format}"
     source_ts = os.path.getmtime(file)
 
     # Ensure that we don't re-convert the file if it is not edited
@@ -44,6 +51,13 @@ def convert_file(file: str, format: str) -> int:
         # command += " --transparent"   # since medium has dark theme
         command += f" --output '{target_file}' '{file}'"
         os.system(command)
+
+        # Copy file to desktop
+        home = str(Path.home())
+        desktop_file_path = f"{home}/Desktop/{target_filename}.generated.{format}"
+        print(f"Copy file from {target_file} to {desktop_file_path}")
+        copyfile(target_file, desktop_file_path)
+
         print("-+" * 40)
         return 1
     return 0
