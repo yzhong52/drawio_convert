@@ -14,6 +14,13 @@ parser.add_argument(
     action="store_true",
     help="Always regenerate images regardless whether we have new updates or not. This is particularly useful when you have updated your Draw.io Application, for example",
 )
+parser.add_argument(
+    "--transparent",
+    dest="transparent",
+    required=False,
+    action="store_true",
+    help="With transparent background",
+)
 parser.set_defaults(force=False)
 args = parser.parse_args()
 print(args)
@@ -48,7 +55,8 @@ def convert_file(file: str, format: str) -> int:
         command = "/Applications/draw.io.app/Contents/MacOS/draw.io"
         command += " --export"
         command += f" --format {format}"
-        # command += " --transparent"   # since medium has dark theme
+        if args.transparent:
+            command += " --transparent"
         command += f" --output '{target_file}' '{file}'"
         os.system(command)
 
